@@ -44,7 +44,6 @@
                 const sheetName = workbook.SheetNames[0];
                 const worksheet = workbook.Sheets[sheetName];
                 fullData = XLSX.utils.sheet_to_json(worksheet);
-                console.log("Data loaded:", fullData);
             });
 
         function searchData() {
@@ -56,10 +55,9 @@
             const filtered = fullData.filter(item => searchList.includes(String(item.SITE)));
             
             filtered.forEach(item => {
-                // Ensure the keys here match your Excel headers exactly
                 tbody.innerHTML += `<tr>
                     <td>${item.SITE || ''}</td>
-                    <td>${item.SITE_CODE || ''}</td>
+                    <td>${item['Site Code'] || ''}</td>
                     <td>${item.UTR || ''}</td>
                     <td>${item.OTR || ''}</td>
                 </tr>`;
