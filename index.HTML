@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>UTR - OTR Tracking</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <h1>UTR - OTR Tracking Tool</h1>
+        <p>Enter Site codes (comma separated):</p>
+        <textarea id="siteInput" placeholder="e.g. TBK1, TDA3, TBL6"></textarea>
+        <button onclick="searchData()">Search</button>
+
+        <table id="resultTable">
+            <thead>
+                <tr><th>SITE</th><th>UTR PARTNER</th><th>OTR PARTNER</th></tr>
+            </thead>
+            <tbody id="resultBody"></tbody>
+        </table>
+    </div>
+
+    <script>
+        let fullData = [];
+        // Fetch the data from the JSON file
+        fetch('data.json')
+            .then(response => response.json())
+            .then(data => fullData = data);
+
+        function searchData() {
+            const input = document.getElementById('siteInput').value;
+            const searchList = input.split(',').map(s => s.trim().toUpperCase());
+            const resultBody = document.getElementById('resultBody');
+            resultBody.innerHTML = ''; 
+
+            const filtered = fullData.filter(item => searchList.includes(item.SITE));
+
+            filtered.forEach(item => {
+                let row = `<tr><td>${item.SITE}</td><td>${item.UTR}</td><td>${item.OTR}</td></tr>`;
+                resultBody.innerHTML += row;
+            });
+        }
+    </script>
+</body>
+</html>
