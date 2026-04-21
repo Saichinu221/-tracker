@@ -3,41 +3,56 @@
 <head>
     <meta charset="UTF-8">
     <title>UTR - OTR Tracking</title>
-    <link rel="stylesheet" href="style.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <style>
+        body { font-family: sans-serif; background: #f4f7f6; padding: 20px; }
+        .container { max-width: 800px; margin: auto; background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+        textarea { width: 100%; height: 100px; padding: 10px; border: 1px solid #ccc; }
+        button { margin-top: 10px; padding: 10px 20px; background: #007bff; color: white; border: none; cursor: pointer; }
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+        th, td { border: 1px solid #ddd; padding: 10px; text-align: left; }
+        th { background: #007bff; color: white; }
+    </style>
 </head>
 <body>
     <div class="container">
         <h1>UTR - OTR Tracking Tool</h1>
         <p>Enter Site codes (comma separated):</p>
-        <textarea id="siteInput" placeholder="e.g. TBK1, TDA3, TBL6"></textarea>
-        <button onclick="searchData()">Search</button>
+        <textarea id="siteInput"></textarea>
+        <button onclick="searchData()">Search Data</button>
 
         <table id="resultTable">
-            <thead>
-                <tr><th>SITE</th><th>UTR PARTNER</th><th>OTR PARTNER</th></tr>
-            </thead>
+            <thead><tr><th>SITE</th><th>UTR PARTNER</th><th>OTR PARTNER</th></tr></thead>
             <tbody id="resultBody"></tbody>
         </table>
     </div>
 
     <script>
         let fullData = [];
-        // Fetch the data from the JSON file
-        fetch('data.json')
-            .then(response => response.json())
-            .then(data => fullData = data);
+
+        // 1. Fetch the Excel file from your GitHub repo
+        fetch('data.xlsx')
+            .then(res => res.arrayBuffer())
+            .then(data => {
+                const workbook = XLSX.read(data, {type: 'array'});
+                const sheetName = workbook.SheetNames[0]; // Gets the first sheet
+                const worksheet = workbook.Sheets[sheetName];
+                // Convert Excel rows to JSON
+                fullData = XLSX.utils.sheet_to_json(worksheet);
+                console.log("Data loaded from Excel:", fullData);
+            });
 
         function searchData() {
             const input = document.getElementById('siteInput').value;
             const searchList = input.split(',').map(s => s.trim().toUpperCase());
-            const resultBody = document.getElementById('resultBody');
-            resultBody.innerHTML = ''; 
+            const tbody = document.getElementById('resultBody');
+            tbody.innerHTML = '';
 
+            // Filter data
             const filtered = fullData.filter(item => searchList.includes(item.SITE));
-
+            
             filtered.forEach(item => {
-                let row = `<tr><td>${item.SITE}</td><td>${item.UTR}</td><td>${item.OTR}</td></tr>`;
-                resultBody.innerHTML += row;
+                tbody.innerHTML += `<tr><td>${item.SITE}</td><td>${item.UTR}</td><td>${item.OTR}</td></tr>`;
             });
         }
     </script>
